@@ -39,8 +39,9 @@ start:
 ;###########################################################
 
 call C
-call E
-call C
+call Cgato
+call D
+call Dgato
 call E
 call salir
   
@@ -57,8 +58,45 @@ C:
     out 61h, al
     mov bx, 25
     jmp .pause1
+Cgato:
+    mov al, 182     ;Preparamos el altaavoz
+    out 43h,al      ;valor de la frecuencia en 
+    mov ax, 8609    ;decimal para C medio
+    out 42h, al     ;Salida del byte bajo
+    mov al, ah      ;Salida del byte alto
+    out 42h, al     ;enviar la nota por el puerto
+    in al, 61h      ;61h
     
-
+    or al, 00000011b    
+    out 61h, al
+    mov bx, 25
+    jmp .pause1 
+D:
+    mov al, 182     ;Preparamos el altaavoz
+    out 43h,al      ;valor de la frecuencia en 
+    mov ax, 8126    ;decimal para C medio
+    out 42h, al     ;Salida del byte bajo
+    mov al, ah      ;Salida del byte alto
+    out 42h, al     ;enviar la nota por el puerto
+    in al, 61h      ;61h
+    
+    or al, 00000011b    
+    out 61h, al
+    mov bx, 25
+    jmp .pause1    
+Dgato:
+    mov al, 182     ;Preparamos el altaavoz
+    out 43h,al      ;valor de la frecuencia en 
+    mov ax, 7670    ;decimal para C medio
+    out 42h, al     ;Salida del byte bajo
+    mov al, ah      ;Salida del byte alto
+    out 42h, al     ;enviar la nota por el puerto
+    in al, 61h      ;61h
+    
+    or al, 00000011b    
+    out 61h, al
+    mov bx, 25
+    jmp .pause1
 E:
     mov al, 182     ;Preparamos el altaavoz
     out 43h,al      ;valor de la frecuencia en 

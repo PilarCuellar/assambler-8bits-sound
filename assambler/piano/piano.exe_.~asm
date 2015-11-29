@@ -1,0 +1,145 @@
+; multi-segment executable file template.
+; Se puede abrir un canal de comunicacion con el altavoz
+; usando la las instrucciones IN/OUT, el proceso consta de
+; cuatro simples pasos:
+; 1º.Enviar el valor 182 al puerto 43h, esto habilita el altavoz
+;
+; 2º.Enviar el valor de la frecuencia deceada, como el puerto es
+; de 8-bit, se debe enviar en dos instrucciones de salida, enviando
+; primero la parte menos significativa y posteriormente la mas significativa
+;
+; 3º.Para iniciar el beep, los bits 1 y 0 del puerto 61h (los otros bits,
+; se usan para otras otras cositas y los dejamos asi, sin moverles xD)
+; Ahora hay que usar la funcion IN del primero para obtener el estado del
+; puerto, y luego hacer un OR para establecer los bits 1 y 0 del puerto
+; por ultimo, usamos OUT para enviar el nuevo valor del puerto
+;
+; 4º.Pausamos usando el contador CX, durante el lapso que dura el beep.
+;
+; 5º.Apagamos el beep reseteando el valor de los bits 1 y 0 del
+; puerto 61h, sin tocar los otros, que tienen otros usos, e igual
+; que la vez anterior, primero leer los valores y despues poner
+; los nuevos.
+
+data segment
+; add your data here!
+pkey db "press any key...$"
+ends
+
+stack segment
+dw   128  dup(0)
+ends
+
+code segment
+start:
+; set segment registers:
+mov ax, data
+mov ds, ax
+mov es, ax
+;###########################################################
+
+call C
+call Cgato
+call D
+call Dgato
+call E
+call salir
+
+C:
+mov al, 182     ;Preparamos el altaavoz
+out 43h,al      ;valor de la frecuencia en
+mov ax, 9120    ;decimal para C medio
+out 42h, al     ;Salida del byte bajo
+mov al, ah      ;Salida del byte alto
+out 42h, al     ;enviar la nota por el puerto
+in al, 61h      ;61h
+
+or al, 00000011b
+out 61h, al
+mov bx, 25
+jmp .pause1
+Cgato:
+mov al, 182     ;Preparamos el altaavoz
+out 43h,al      ;valor de la frecuencia en
+mov ax, 8609    ;decimal para C medio
+out 42h, al     ;Salida del byte bajo
+mov al, ah      ;Salida del byte alto
+out 42h, al     ;enviar la nota por el puerto
+in al, 61h      ;61h
+
+or al, 00000011b
+out 61h, al
+mov bx, 25
+jmp .pause1
+D:
+mov al, 182     ;Preparamos el altaavoz
+out 43h,al      ;valor de la frecuencia en
+mov ax, 8126    ;decimal para C medio
+out 42h, al     ;Salida del byte bajo
+mov al, ah      ;Salida del byte alto
+out 42h, al     ;enviar la nota por el puerto
+in al, 61h      ;61h
+
+or al, 00000011b
+out 61h, al
+mov bx, 25
+jmp .pause1
+Dgato:
+mov al, 182     ;Preparamos el altaavoz
+out 43h,al      ;valor de la frecuencia en
+mov ax, 7670    ;decimal para C medio
+out 42h, al     ;Salida del byte bajo
+mov al, ah      ;Salida del byte alto
+out 42h, al     ;enviar la nota por el puerto
+in al, 61h      ;61h
+
+or al, 00000011b
+out 61h, al
+mov bx, 25
+jmp .pause1
+E:
+mov al, 182     ;Preparamos el altaavoz
+out 43h,al      ;valor de la frecuencia en
+mov ax, 3619    ;decimal para C medio
+out 42h, al     ;Salida del byte bajo
+mov al, ah      ;Salida del byte alto
+out 42h, al     ;enviar la nota por el puerto
+in al, 61h      ;61h
+
+or al, 00000011b
+out 61h, al
+mov bx, 25
+jmp .pause1
+
+
+.pause1 proc near:
+mov cx, 65535
+.pause2:
+dec cx
+jne .pause2
+dec bx
+jne .pause1
+in  al, 61h
+
+and al, 11111100b
+out 61h, al
+RET
+;###########################################################
+salir:
+lea dx, pkey
+mov ah, 9
+int 21h        ; output string at ds:dx
+
+; wait for any key....
+mov ah, 1
+int 21h
+mov ax, 4c00h ; exit to operating system.
+int 21h
+ends
+
+end start ; set entry point and stop the assembler.
+
+
+
+
+; [SOURCE]: Z:\home\kharl\Documents\assambler-8bits-sound\assambler\piano.asm
