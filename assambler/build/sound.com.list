@@ -1,0 +1,56 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+sound.com -- emu8086 assembler version: 4.08  
+ 
+[ 11/28/2015  --  9:09:23 PM ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       
+[   2]        :                                       ; You may customize this and other start-up templates;
+[   3]        :                                       ; The location of this template is c:\emu8086\inc\0_com_template.txt
+[   4]        :                                       
+[   5]        :                                       org 100h
+[   6]        :                                       
+[   7]    0100: B0 B6                                 mov al, 182     ;Preparamos el altaavoz
+[   8]    0102: E6 43                                 out 43h,al      ;valor de la frecuencia en
+[   9]    0104: B8 D0 11                              mov ax, 4560    ;decimal para C medio
+[  10]    0107: E6 42                                 out 42h, al     ;Salida del byte bajo
+[  11]    0109: 8A C4                                 mov al, ah      ;Salida del byte alto
+[  12]    010B: E6 42                                 out 42h, al     ;enviar la nota por el puerto
+[  13]    010D: E4 61                                 in al, 61h      ;61h
+[  14]        :                                       
+[  15]    010F: 0C 03                                 or al, 00000011b
+[  16]    0111: E6 61                                 out 61h, al
+[  17]    0113: BB 1E 00                              mov bx, 30
+[  18]        :                                       
+[  19]    0116:                                       .pause1:
+[  20]    0116: B9 FF FF                              mov cx, 65535
+[  21]    0119:                                       .pause2:
+[  22]    0119: 49                                    dec cx
+[  23]    011A: 75 FD                                 jne .pause2
+[  24]    011C: 4B                                    dec bx
+[  25]    011D: 75 F7                                 jne .pause1
+[  26]    011F: E4 61                                 in  al, 61h
+[  27]        :                                       
+[  28]    0121: 24 FC                                 and al, 11111100b
+[  29]    0123: E6 61                                 out 61h, al
+[  30]        :                                       
+[  31]        :                                       
+[  32]    0125: C3                                    ret
+[  33]        :                                       
+[  34]        :                                       
+[  35]        :                                       
+[  36]        :                                       
+[  37]        :                                       
+[  38]        :                                       
+ 
+===================================================================================================
+ 
+
+
+
+
+===================================================================================================

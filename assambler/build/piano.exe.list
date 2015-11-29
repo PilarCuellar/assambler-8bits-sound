@@ -1,0 +1,181 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+piano.exe -- emu8086 assembler version: 4.08  
+ 
+[ 11/28/2015  --  10:39:40 PM ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       ; multi-segment executable file template.
+[   2]        :                                       ;  Se puede abrir un canal de comunicacion con el altavoz
+[   3]        :                                       ; usando la las instrucciones IN/OUT, el proceso consta de
+[   4]        :                                       ; cuatro simples pasos:
+[   5]        :                                       ; 1º.Enviar el valor 182 al puerto 43h, esto habilita el altavoz
+[   6]        :                                       ;
+[   7]        :                                       ; 2º.Enviar el valor de la frecuencia deceada, como el puerto es
+[   8]        :                                       ; de 8-bit, se debe enviar en dos instrucciones de salida, enviando
+[   9]        :                                       ; primero la parte menos significativa y posteriormente la mas significativa
+[  10]        :                                       ;
+[  11]        :                                       ; 3º.Para iniciar el beep, los bits 1 y 0 del puerto 61h (los otros bits,
+[  12]        :                                       ; se usan para otras otras cositas y los dejamos asi, sin moverles xD)
+[  13]        :                                       ; Ahora hay que usar la funcion IN del primero para obtener el estado del
+[  14]        :                                       ; puerto, y luego hacer un OR para establecer los bits 1 y 0 del puerto
+[  15]        :                                       ; por ultimo, usamos OUT para enviar el nuevo valor del puerto
+[  16]        :                                       ;
+[  17]        :                                       ; 4º.Pausamos usando el contador CX, durante el lapso que dura el beep.
+[  18]        :                                       ;
+[  19]        :                                       ; 5º.Apagamos el beep reseteando el valor de los bits 1 y 0 del
+[  20]        :                                       ; puerto 61h, sin tocar los otros, que tienen otros usos, e igual
+[  21]        :                                       ; que la vez anterior, primero leer los valores y despues poner
+[  22]        :                                       ; los nuevos.
+[  23]        :                                       
+[  24]        :                                       data segment
+[  25]        :                                       ; add your data here!
+[  26]    0000: 70 72 65 73 73 20 61 6E 79 20 6B 65   pkey db "press any key...$"
+                79 2E 2E 2E 24                      
+[  27]        :                                       ends
+[  28]        :                                       
+[  29]        :                                       stack segment
+[  30]    0020: 00 00 00 00 00 00 00 00 00 00 00 00   dw   128  dup(0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00                         
+[  31]        :                                       ends
+[  32]        :                                       
+[  33]        :                                       code segment
+[  34]    0120:                                       start:
+[  35]        :                                       ; set segment registers:
+[  36]    0120: B8 00 00                              mov ax, data
+[  37]    0123: 8E D8                                 mov ds, ax
+[  38]    0125: 8E C0                                 mov es, ax
+[  39]        :                                       ;###########################################################
+[  40]        :                                       
+[  41]    0127: E8 0C 00                              call C
+[  42]    012A: E8 21 00                              call E
+[  43]    012D: E8 06 00                              call C
+[  44]    0130: E8 1B 00                              call E
+[  45]    0133: E8 40 00                              call salir
+[  46]        :                                       
+[  47]    0136:                                       C:
+[  48]    0136: B0 B6                                 mov al, 182     ;Preparamos el altaavoz
+[  49]    0138: E6 43                                 out 43h,al      ;valor de la frecuencia en
+[  50]    013A: B8 A0 23                              mov ax, 9120    ;decimal para C medio
+[  51]    013D: E6 42                                 out 42h, al     ;Salida del byte bajo
+[  52]    013F: 8A C4                                 mov al, ah      ;Salida del byte alto
+[  53]    0141: E6 42                                 out 42h, al     ;enviar la nota por el puerto
+[  54]    0143: E4 61                                 in al, 61h      ;61h
+[  55]        :                                       
+[  56]    0145: 0C 03                                 or al, 00000011b
+[  57]    0147: E6 61                                 out 61h, al
+[  58]    0149: BB 19 00                              mov bx, 25
+[  59]    014C: EB 18                                 jmp .pause1
+[  60]        :                                       
+[  61]        :                                       
+[  62]    014E:                                       E:
+[  63]    014E: B0 B6                                 mov al, 182     ;Preparamos el altaavoz
+[  64]    0150: E6 43                                 out 43h,al      ;valor de la frecuencia en
+[  65]    0152: B8 23 0E                              mov ax, 3619    ;decimal para C medio
+[  66]    0155: E6 42                                 out 42h, al     ;Salida del byte bajo
+[  67]    0157: 8A C4                                 mov al, ah      ;Salida del byte alto
+[  68]    0159: E6 42                                 out 42h, al     ;enviar la nota por el puerto
+[  69]    015B: E4 61                                 in al, 61h      ;61h
+[  70]        :                                       
+[  71]    015D: 0C 03                                 or al, 00000011b
+[  72]    015F: E6 61                                 out 61h, al
+[  73]    0161: BB 19 00                              mov bx, 25
+[  74]    0164: EB 00                                 jmp .pause1
+[  75]        :                                       
+[  76]        :                                       
+[  77]    0166:                                       .pause1 proc near:
+[  78]    0166: B9 FF FF                              mov cx, 65535
+[  79]    0169:                                       .pause2:
+[  80]    0169: 49                                    dec cx
+[  81]    016A: 75 FD                                 jne .pause2
+[  82]    016C: 4B                                    dec bx
+[  83]    016D: 75 F7                                 jne .pause1
+[  84]    016F: E4 61                                 in  al, 61h
+[  85]        :                                       
+[  86]    0171: 24 FC                                 and al, 11111100b
+[  87]    0173: E6 61                                 out 61h, al
+[  88]    0175: C3                                    RET
+[  89]        :                                       ;###########################################################
+[  90]    0176:                                       salir:
+[  91]    0176: BA 00 00                              lea dx, pkey
+[  92]    0179: B4 09                                 mov ah, 9
+[  93]    017B: CD 21                                 int 21h        ; output string at ds:dx
+[  94]        :                                       
+[  95]        :                                       ; wait for any key....
+[  96]    017D: B4 01                                 mov ah, 1
+[  97]    017F: CD 21                                 int 21h
+[  98]    0181: B8 00 4C                              mov ax, 4c00h ; exit to operating system.
+[  99]    0184: CD 21                                 int 21h
+[ 100]        :                                       ends
+[ 101]        :                                       
+[ 102]        :                                       end start ; set entry point and stop the assembler.
+[ 103]        :                                       
+[ 104]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: 86      -   bytes on last page (l.byte)
+0003: 01      -   bytes on last page (h.byte)
+0004: 02      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 02      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: 0B      -   check sum (l.byte)
+0013: F8      -   check sum (h.byte)
+0014: 00      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 12      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 01      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 12      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

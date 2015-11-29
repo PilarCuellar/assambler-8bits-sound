@@ -1,0 +1,4 @@
+flat assembler  version 1.64
+Z:\home\kharl\Documents\assambler\build\piano.bin.~asm [24]:
+data segment
+error: illegal instruction.
