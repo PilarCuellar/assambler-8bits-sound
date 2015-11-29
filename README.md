@@ -8,7 +8,7 @@ es hacer algo bastante tematico al mes de diciembre y hacer algun villansico, es
 
 
 
-| First Header  | Second Header |
+| Nota  |  Fracuencia | Valor  |
 | ------------- | ------------- |
 | Content Cell  | Content Cell  |
 | Content Cell  | Content Cell  |
